@@ -218,7 +218,7 @@ def generate_excelbook(filename="sample_format.xlsx"):
     ws_relation.add_table(table2)
 
     wb.save(filename)
-    print("Generated sample_format.xlsx")
+    print(f"Generated {filename}")
 
 
 def build_parser():
