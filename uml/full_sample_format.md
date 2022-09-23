@@ -1,7 +1,7 @@
 ```plantuml
 @startuml
 skinparam linetype ortho
-!include ../tables/sample_format.md
+!include sample_format.md
 
 sample_table --|> child1
 sample_table --|> child2

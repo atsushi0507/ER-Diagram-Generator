@@ -120,12 +120,11 @@ filenameはデフォルトで**sample_format.xlsx**になってます。
     @enduml
     ```
 
-
 ## Author
 
 👤 **Atsushi Mizukami**
 
-使い方に関する質問や追加機能のリクエストがあったらこちらまで
+使い方に関する質問や追加機能のリクエストがあったらこちらまで  
 :email: [メールを送る](mailto:a.mizukami.0507@gmail.com)
 
 ## Show your support
