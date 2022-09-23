@@ -11,6 +11,6 @@ writer.load_table(load_file)
 
 writer.make_relation("Models", "Experiments", 4)
 writer.make_relation("Projects", "Models", 4)
-writer.make_relation("Projects", "Experiments2")
+writer.make_relation("Projects", "Experiments2", 3)
 
 writer.output_relation(out_name)

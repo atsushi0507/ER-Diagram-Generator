@@ -71,17 +71,21 @@ class ERDiagram:
             df_dict = df.to_dict()
             PKs = []
             FKs = []
+            vars = []
+            comments = []
             for key, values in df_dict.items():
                 for k, value in values.items():
                     if key == "Primary Key" and value == 1.0:
                         PKs.append(k)
-                    if key == "Foreign Key" and value == 1.0:
+                    elif key == "Foreign Key" and value == 1.0:
                         FKs.append(k)
 
             if len(PKs) == 0:
                 PKs = None
             if len(FKs) == 0:
                 FKs = None
+            if len(vars) == 0:
+                vars = None
 
             self.make_entity(sheet_name, PKs, FKs)
         self.output_table(f"{filename.split('.')[-2]}.md")
@@ -222,13 +226,25 @@ def generate_excelbook(filename="sample_format.xlsx"):
 
 
 def build_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--generate_excel", action="store_true")
-    parser.add_argument("-t", "--make_tables", action="store_true")
-    parser.add_argument("-r", "--make_relations", action="store_true")
-    parser.add_argument("-a", "--make_all", action="store_true")
-    parser.add_argument("-f", "--excel_file", type=str, default="sample_format.xlsx")
-    parser.add_argument("-l", "--load_file", type=str, default="tables/sample_format.md")
+    description="""
+    ER図作成ツールです。実行のヒント:
+    python ER_diagram_generator.py --generate_excel (--excel_file [path/to/file])
+    python ER_diagram_generator.py --make_tables (--excel_file [path/to/file])
+    python ER_diagram_generator.py --make_relations (--excel_file [path/to/file])
+    python ER_diagram_generator.py --make_all (--excel_file [path/to/file])
+    """
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=description)
+    parser.add_argument("-g", "--generate_excel", action="store_true", 
+                        help="テーブル定義用のエクセルファイルを生成する。")
+    parser.add_argument("-t", "--make_tables", action="store_true", 
+                        help="テーブルの一覧を生成する。")
+    parser.add_argument("-r", "--make_relations", action="store_true",
+                        help="テーブルの関係を作成する。変数は表示しない。")
+    parser.add_argument("-a", "--make_all", action="store_true", 
+                        help="テーブルの関係を、PKとFK付きで表示する。")
+    parser.add_argument("-f", "--excel_file", type=str, default="sample_format.xlsx",
+                        help="入力ファイル名を指定する。デフォルトは'sample_format.xlsx'")
     return parser
 
 def main():
