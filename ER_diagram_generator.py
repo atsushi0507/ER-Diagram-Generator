@@ -8,7 +8,8 @@ class ERDiagram:
     def __init__(self, title="Sample Diagram"):
         self.title = title
         self.obj = f"```plantuml\n@startuml\ntitle {self.title}\n"
-        self.relation = f"```plantuml\n@startuml\nskinparam linetype ortho\n"
+        #self.relation = f"```plantuml\n@startuml\nskinparam linetype ortho\n"
+        self.relation = f"```plantuml\n@startuml\ntop to bottom direction\n"
 
 
     def make_entity(self, entity_name, primary_keys=None, foreign_keys=None):
