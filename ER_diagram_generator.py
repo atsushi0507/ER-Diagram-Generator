@@ -150,56 +150,82 @@ def generate_excelbook(filename="sample_format.xlsx"):
     wb = Workbook()
     ws = wb.active
     ws.title = "sample_table"
-        
+    ws.column_dimensions["A"].width = 30
+    ws.column_dimensions["B"].width = 10
+    ws.column_dimensions["C"].width = 10
+    ws.column_dimensions["D"].width = 35
+
     columns = [f"column_{i}" for i in range(10)]
-    PKs = [True, False, True, False, False, True, False, False, False, False]
-    FKs = [False, True, False, True, False, False, False, False, False, False]
+    PKs = [1, 0, 1, 0, 0, 1, 0, 0, 0, 0]
+    FKs = [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
     comments = ["", "Table2の外部キー", "", "Table5の外部キー", "", "", "", "", "", ""]
 
     table = make_excel_sheet(ws, "Table1", len(columns), columns, PKs, FKs, comments)
     ws.add_table(table)
 
     ws_child1 = wb.create_sheet(title="child1")
+    ws_child1.column_dimensions["A"].width = 30
+    ws_child1.column_dimensions["B"].width = 10
+    ws_child1.column_dimensions["C"].width = 10
+    ws_child1.column_dimensions["D"].width = 35
     columns = [f"column_{i}" for i in range(7)]
-    PKs = [False, True, False, False, False, False, False]
-    FKs = [False, False, False, True, False, False, False]
+    PKs = [0, 1, 0, 0, 0, 0, 0]
+    FKs = [0, 0, 0, 1, 0, 0, 0]
     comments = ["" for _ in range(7)]
     table_child1 = make_excel_sheet(ws_child1, "Child1", len(columns), columns, PKs, FKs, comments)
     ws_child1.add_table(table_child1)
 
     ws_child2 = wb.create_sheet(title="child2")
+    ws_child2.column_dimensions["A"].width = 30
+    ws_child2.column_dimensions["B"].width = 10
+    ws_child2.column_dimensions["C"].width = 10
+    ws_child2.column_dimensions["D"].width = 35
     columns = [f"column_{i}" for i in range(4)]
-    PKs = [True, True, False, False]
-    FKs = [False, False, False, True]
+    PKs = [1, 1, 0, 0]
+    FKs = [0, 0, 0, 1]
     comments = ["" for _ in range(4)]
     table_child2 = make_excel_sheet(ws_child2, "Child2", len(columns), columns, PKs, FKs, comments)
     ws_child2.add_table(table_child2)
 
     ws_child3 = wb.create_sheet(title="child3")
+    ws_child3.column_dimensions["A"].width = 30
+    ws_child3.column_dimensions["B"].width = 10
+    ws_child3.column_dimensions["C"].width = 10
+    ws_child3.column_dimensions["D"].width = 35
     columns = [f"column_{i}" for i in range(6)]
-    PKs = [True, False, False, False, False, False]
-    FKs = [False, False, False, False, True, False]
+    PKs = [1, 0, 0, 0, 0, 0]
+    FKs = [0, 0, 0, 0, 1, 0]
     comments = ["" for _ in range(6)]
     table_child3 = make_excel_sheet(ws_child3, "Child3", len(columns), columns, PKs, FKs, comments)
     ws_child3.add_table(table_child3)
 
     ws_child4 = wb.create_sheet(title="child4")
+    ws_child4.column_dimensions["A"].width = 30
+    ws_child4.column_dimensions["B"].width = 10
+    ws_child4.column_dimensions["C"].width = 10
+    ws_child4.column_dimensions["D"].width = 35
     columns = [f"column_{i}" for i in range(5)]
-    PKs = [True, True, False, True, False]
-    FKs = [False, False, False, True, False]
+    PKs = [1, 1, 0, 1, 0]
+    FKs = [0, 0, 0, 1, 0]
     comments = ["" for _ in range(5)]
     table_child4 = make_excel_sheet(ws_child4, "Child4", len(columns), columns, PKs, FKs, comments)
     ws_child4.add_table(table_child4)
 
     ws_child5 = wb.create_sheet(title="child5")
+    ws_child5.column_dimensions["A"].width = 30
+    ws_child5.column_dimensions["B"].width = 10
+    ws_child5.column_dimensions["C"].width = 10
+    ws_child5.column_dimensions["D"].width = 35
     columns = [f"column_{i}" for i in range(4)]
-    PKs = [True, True, False, False]
-    FKs = [False, False, False, True]
+    PKs = [1, 1, 0, 0]
+    FKs = [0, 0, 0, 1]
     comments = ["" for _ in range(4)]
     table_child5 = make_excel_sheet(ws_child5, "Child5", len(columns), columns, PKs, FKs, comments)
     ws_child5.add_table(table_child5)
 
     ws_relation = wb.create_sheet(title="relation")
+    ws_relation.column_dimensions["A"].width = 30
+    ws_relation.column_dimensions["B"].width = 30
     relations = {
         # parent : child
         "sample_table" : ["child1", "child2", "child3"],
