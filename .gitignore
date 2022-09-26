@@ -1,4 +1,6 @@
-__pychache__
+.DS_Store
+__pycache__
 tables/
 relation/
 *.xlsx
+process/
