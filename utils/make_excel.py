@@ -18,7 +18,7 @@ def make_sheet(wb):
     return ws
 
 def make_table(title):
-    table = Table(displayName=title, ref=f"A1:D1")
+    table = Table(displayName=title, ref=f"A1:D2")
     style = TableStyleInfo(name="TableStyleMedium9", showRowStripes=True)
     table.tableStyleInfo = style
     return table
@@ -54,17 +54,17 @@ def make_empty_book(filename="sample_format.xlsx", n_tables=4):
     ws_process.column_dimensions["E"].width = 10
     ws_process.column_dimensions["F"].width = 35
 
-    ws_process.cell(1, 1, value="Middle Table")
-    ws_process.cell(1, 2, value="Process")
-    ws_process.cell(1, 3, value="Sources")
-    ws_process.cell(1, 4, value="output")
-    ws_process.cell(1, 5, value="position")
+    ws_process.cell(1, 1, value="Process")
+    ws_process.cell(1, 2, value="Input")
+    ws_process.cell(1, 3, value="Add")
+    ws_process.cell(1, 4, value="Output")
+    ws_process.cell(1, 5, value="Middle Table?")
     ws_process.cell(1, 6, value="Comment")
 
-    table3 = Table(displayName="Process", ref="A1:F1")
+    table3 = Table(displayName="Process", ref="A1:F2")
     table3.tableStyleInfo = style
     ws_process.add_table(table3)
-
+    
     dv = DataValidation(
         type="list",
         formula1='"left,right,top,bottom"',
@@ -73,7 +73,7 @@ def make_empty_book(filename="sample_format.xlsx", n_tables=4):
         errorStyle="warning",
         errorTitle="選択リストから選択してください"
     )
-    dv.add(f"E2:E1024")
+    dv.add(f"A2:A1000")
     ws_process.add_data_validation(dv)
     
     wb.save(filename)
@@ -205,23 +205,23 @@ def generate_excelbook(filename="sample_format.xlsx"):
     ws_process.column_dimensions["E"].width = 10
     ws_process.column_dimensions["F"].width = 35
 
-    ws_process.cell(1, 1, value="Middle Table")
-    ws_process.cell(1, 2, value="Process")
-    ws_process.cell(1, 3, value="Sources")
-    ws_process.cell(1, 4, value="output")
-    ws_process.cell(1, 5, value="position")
+    ws_process.cell(1, 1, value="Process")
+    ws_process.cell(1, 2, value="Input")
+    ws_process.cell(1, 3, value="Add")
+    ws_process.cell(1, 4, value="Output")
+    ws_process.cell(1, 5, value="Middle Table?")
     ws_process.cell(1, 6, value="Comment")
 
-    table3 = Table(displayName="Process", ref="A1:F1")
+    table3 = Table(displayName="Process", ref="A1:F2")
     table3.tableStyleInfo = style
     ws_process.add_table(table3)
 
     processes = [
-        [0, "join1", "s456,pboem", "", "", ""],
-        [0, "join2", "join1,deadline", "", "", ""],
-        [0, "join3", "join2,MD_price", "", "", ""],
-        [1, "", "join3", "self.s456", "", "", ""],
-        [0, "join4", "self.s456,self.psku", "", "", ""],
+        ["", "s456", "pboem", "join1", None, ""],
+        ["", "join1", "deadline", "join2", None, ""],
+        ["", "join2", "MD_price", "join3", None, ""],
+        ["", "join3", "", "self.s456", 1, None, ""],
+        ["", "self.s456", "self.psku", "join4", None, ""],
     ]
     for i, process in enumerate(processes):
         for j, val in enumerate(process):
@@ -229,6 +229,18 @@ def generate_excelbook(filename="sample_format.xlsx"):
                 ws_process.cell(i+2, j+1, value="")
             else:
                  ws_process.cell(i+2, j+1, value=val)
+
+    dv = DataValidation(
+        type="list",
+        formula1='"join,union,process,make_middle_table"',
+        allow_blank=True,
+        showErrorMessage=True,
+        errorStyle="warning",
+        errorTitle="選択リストから選択してください"
+    )
+    dv.add(f"A2:A1000")
+    ws_process.add_data_validation(dv)
+
 
     wb.save(filename)
     print(f"Generated {filename}")
