@@ -12,8 +12,11 @@ class ERDiagram:
         self.note = f"```plantuml\n@startuml\n"
 
 
-    def make_entity(self, entity_name, primary_keys=None, foreign_keys=None):
-        self.obj += f"entity {entity_name}" + "{\n"
+    def make_entity(self, entity_name, primary_keys=None, foreign_keys=None, url=None):
+        if str(url) != "nan":
+            self.obj += f"entity {entity_name} [[{url}]]" + "{\n"
+        else:
+            self.obj += f"entity {entity_name}" + "{\n"
         if primary_keys is not None:
             if type(primary_keys) == str:
                 self.obj += f"* {primary_keys} [PK]\n"
@@ -71,6 +74,11 @@ class ERDiagram:
             if sheet_name == "relation" or sheet_name == "process":
                 continue
             df = book.parse(sheet_name=sheet_name, index_col=0)
+            try:
+                url = df.URL.iloc[0]
+            except IndexError as e:
+                print(f"URL is not specified for table: {sheet_name}")
+                url = None
 
             df_dict = df.to_dict()
             PKs = []
@@ -91,7 +99,7 @@ class ERDiagram:
             if len(vars) == 0:
                 vars = None
 
-            self.make_entity(sheet_name, PKs, FKs)
+            self.make_entity(sheet_name, PKs, FKs, url)
         self.output_table(f"{filename.split('.')[-2]}.md")
 
 
