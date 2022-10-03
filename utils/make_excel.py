@@ -14,6 +14,7 @@ def make_sheet(wb):
     ws.cell(1, 2, value="Primary Key")
     ws.cell(1, 3, value="Foreign Key")
     ws.cell(1, 4, value="Comment")
+    ws["F1"].value = "URL"
 
     return ws
 
@@ -48,6 +49,7 @@ def make_empty_book(filename="sample_format.xlsx", n_tables=4):
 
     ws_relation.add_table(table2)
 
+    """
     ws_process = wb.create_sheet(title="process")
     ws_process.column_dimensions["A"].width = 12
     ws_process.column_dimensions["B"].width = 25
@@ -70,6 +72,7 @@ def make_empty_book(filename="sample_format.xlsx", n_tables=4):
     )
     dv.add(f"A2:A1000")
     ws_process.add_data_validation(dv)
+    """
     
     wb.save(filename)
     wb.close()
