@@ -1,8 +1,6 @@
 import os
 import argparse
 import pandas as pd
-#from openpyxl import Workbook
-#from openpyxl.worksheet.table import Table, TableStyleInfo"
 
 from utils import make_excel
 
@@ -10,12 +8,15 @@ class ERDiagram:
     def __init__(self, title="Sample Diagram"):
         self.title = title
         self.obj = f"```plantuml\n@startuml\ntitle {self.title}\n"
-        #self.relation = f"```plantuml\n@startuml\nskinparam linetype ortho\n"
         self.relation = f"```plantuml\n@startuml\ntop to bottom direction\n"
+        self.note = f"```plantuml\n@startuml\n"
 
 
-    def make_entity(self, entity_name, primary_keys=None, foreign_keys=None):
-        self.obj += f"entity {entity_name}" + "{\n"
+    def make_entity(self, entity_name, primary_keys=None, foreign_keys=None, url=None):
+        if str(url) != "nan":
+            self.obj += f"entity {entity_name} [[{url}]]" + "{\n"
+        else:
+            self.obj += f"entity {entity_name}" + "{\n"
         if primary_keys is not None:
             if type(primary_keys) == str:
                 self.obj += f"* {primary_keys} [PK]\n"
@@ -32,44 +33,52 @@ class ERDiagram:
         self.obj += "}\n"
 
     
-    def make_relation(self, parent, child, type=4):
-        """
-        type:
-            0: 0 or 1
-            1: only 1
-            2: 0 or more
-            3: 1 or more
-            4: arrow
-        """
-        zero_or_one = "|o--"
-        only_one = "||--"
-        zero_or_more = "}o--"
-        one_or_more = "}|--"
+    def make_relation(self, parent, child, description):
         arrow = "--|>"
-        if type == 0:
-            marker = zero_or_one
-        elif type == 1:
-            marker = only_one
-        elif type == 2:
-            marker = zero_or_more
-        elif type == 3:
-            marker = one_or_more
-        elif type == 4:
-            marker = arrow
-        self.relation += f"{parent} {marker} {child}" + "\n"
+        to_join = "--"
+        note_to_join = "--left--"
+        to_process = "--"
+        if "join" in child:
+            self.relation += f"{parent} {to_join} {child}\n"
+            if str(description) != "nan":
+                self.relation += f"note_{parent}_{child} {note_to_join} {child}\n"
+        else:
+            if str(description) != "nan":
+                self.relation += f"{parent} {to_process} note_{parent}_{child}\n"
+                self.relation += f"note_{parent}_{child} {arrow} {child}\n"
+
+    def make_marker(self, child):
+        if "join" in child:
+            print(child)
+
+    
+    def make_note(self, parent, child, description):
+        if not str(description) == "nan":
+            self.note += f"note as note_{parent}_{child} #BurlyWood\n"
+            self.note += f"{description}\n"
+            self.note += "end note\n\n"
 
 
     def load_table(self, load_file):
-        self.relation += f"!include {load_file}\n\n"
+        self.relation += f"!include ../tables/{load_file}\n\n"
+
+
+    def load_note(self, load_file):
+        self.relation += f"!include ../notes/note-{load_file}\n\n"
 
 
     def make_entities_from_excel(self, filename):
         book = pd.ExcelFile(filename)
         sheets = book.sheet_names
         for sheet_name in sheets:
-            if sheet_name == "relation":
+            if sheet_name == "relation" or sheet_name == "process":
                 continue
             df = book.parse(sheet_name=sheet_name, index_col=0)
+            try:
+                url = df.URL.iloc[0]
+            except IndexError as e:
+                print(f"URL is not specified for table: {sheet_name}")
+                url = None
 
             df_dict = df.to_dict()
             PKs = []
@@ -90,30 +99,42 @@ class ERDiagram:
             if len(vars) == 0:
                 vars = None
 
-            self.make_entity(sheet_name, PKs, FKs)
+            self.make_entity(sheet_name, PKs, FKs, url)
         self.output_table(f"{filename.split('.')[-2]}.md")
 
 
     def make_relations_from_excel(self, filename, load_file):
         book = pd.ExcelFile(filename)
         if load_file is not None:
-            self.load_table(f"../{load_file}")
+            self.load_table(f"{load_file}")
+            self.load_note(f"{load_file}")
 
         df = book.parse(sheet_name="relation")
 
-        parents = df.Parent.to_list()
-        children = df.Child.to_list()
+        parents = df.From.to_list()
+        children = df.To.to_list()
+        descriptions = df.Description.to_list()
+
+        markers = []
+        for child in children:
+            if "join" in child and child not in markers:
+                markers.append(child)
+        for marker in markers:
+            self.relation += f"() {marker} #gray\n"
+        self.relation += "\n"
 
         for i in range(len(parents)):
-            self.make_relation(parents[i], children[i])
+            self.make_relation(parents[i], children[i], descriptions[i])
+            self.make_note(parents[i], children[i], descriptions[i])
 
         self.output_relation(f"{filename.split('.')[-2]}.md")
+        self.output_note(f"{filename.split('.')[-2]}.md")
 
 
     def make_all_from_excel(self, filename):
         self.make_entities_from_excel(filename)
         load_file_name = filename.split(".")[-2] + ".md"
-        self.make_relations_from_excel(filename, f"tables/{load_file_name}")
+        self.make_relations_from_excel(filename, f"{load_file_name}")
 
     
     def output_table(self, out_name):
@@ -126,12 +147,21 @@ class ERDiagram:
 
 
     def output_relation(self, out_name):
-        out_dir = "relation"
+        out_dir = "relations"
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
         with open(f"{out_dir}/relation-{out_name}", "w") as f:
             self.relation += "@enduml"
             f.write(self.relation)
+
+
+    def output_note(self, out_name):
+        out_dir = "notes"
+        if not os.path.isdir(out_dir):
+            os.makedirs(out_dir)
+        with open(f"{out_dir}/note-{out_name}", "w") as f:
+            self.note += "@enduml"
+            f.write(self.note)
 
 def build_parser():
     description="""
