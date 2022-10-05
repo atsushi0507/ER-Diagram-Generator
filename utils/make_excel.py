@@ -10,16 +10,25 @@ def make_sheet(wb):
     ws.column_dimensions["C"].width = 10
     ws.column_dimensions["D"].width = 35
 
-    ws.cell(1, 1, value="Column Name")
-    ws.cell(1, 2, value="Primary Key")
-    ws.cell(1, 3, value="Foreign Key")
-    ws.cell(1, 4, value="Comment")
-    ws["F1"].value = "URL"
+    ws["A1"].value = "Table Name"
+    ws["A2"].value = "Short Name"
+    ws["A3"].value = "URL"
+
+    ws["B2"].value = "現在未実装"
+
+    ws.merge_cells("B1:D1")
+    ws.merge_cells("B2:D2")
+    ws.merge_cells("B3:D3")
+
+    ws["A4"].value = "Column Name"
+    ws["B4"].value = "Primary Key"
+    ws["C4"].value = "Foreign Key"
+    ws["D4"].value = "Comment"
 
     return ws
 
 def make_table(title):
-    table = Table(displayName=title, ref=f"A1:D2")
+    table = Table(displayName=title, ref=f"A4:D5")
     style = TableStyleInfo(name="TableStyleMedium9", showRowStripes=True)
     table.tableStyleInfo = style
     return table
