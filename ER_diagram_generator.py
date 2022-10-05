@@ -1,6 +1,7 @@
 import os
 import argparse
 import pandas as pd
+from openpyxl import load_workbook
 
 from utils import make_excel
 
@@ -13,7 +14,7 @@ class ERDiagram:
 
 
     def make_entity(self, entity_name, primary_keys=None, foreign_keys=None, url=None):
-        if str(url) != "nan":
+        if url is not None:
             self.obj += f"entity {entity_name} [[{url}]]" + "{\n"
         else:
             self.obj += f"entity {entity_name}" + "{\n"
@@ -42,18 +43,22 @@ class ERDiagram:
             self.relation += f"{parent} {to_join} {child}\n"
             if str(description) != "nan":
                 self.relation += f"note_{parent}_{child} {note_to_join} {child}\n"
+        elif str(parent) == "nan" and not str(description) == "nan":
+            self.relation += f"{child} {note_to_join} note_{child}\n\n"
         else:
-            if str(description) != "nan":
+            if not str(description) == "nan":
                 self.relation += f"{parent} {to_process} note_{parent}_{child}\n"
                 self.relation += f"note_{parent}_{child} {arrow} {child}\n"
-
-    def make_marker(self, child):
-        if "join" in child:
-            print(child)
+            else:
+                self.relation += f"{parent} {arrow} {child}\n\n"
 
     
     def make_note(self, parent, child, description):
-        if not str(description) == "nan":
+        if str(parent) == "nan" and not str(description) == "nan":
+            self.note += f"note as note_{child} #BurlyWood\n"
+            self.note += f"{description}\n"
+            self.note += "end note\n\n"
+        elif not str(description) == "nan":
             self.note += f"note as note_{parent}_{child} #BurlyWood\n"
             self.note += f"{description}\n"
             self.note += "end note\n\n"
@@ -70,15 +75,15 @@ class ERDiagram:
     def make_entities_from_excel(self, filename):
         book = pd.ExcelFile(filename)
         sheets = book.sheet_names
+        wb = load_workbook(filename)
         for sheet_name in sheets:
             if sheet_name == "relation" or sheet_name == "process":
                 continue
-            df = book.parse(sheet_name=sheet_name, index_col=0)
-            try:
-                url = df.URL.iloc[0]
-            except IndexError as e:
-                print(f"URL is not specified for table: {sheet_name}")
-                url = None
+            df = pd.read_excel(filename, sheet_name=sheet_name, index_col=0, header=3)
+            ws = wb[sheet_name]
+            table_name = ws["B1"].value
+            short_name = ws["B2"].value
+            url = ws["B3"].value
 
             df_dict = df.to_dict()
             PKs = []
@@ -99,7 +104,7 @@ class ERDiagram:
             if len(vars) == 0:
                 vars = None
 
-            self.make_entity(sheet_name, PKs, FKs, url)
+            self.make_entity(table_name, PKs, FKs, url)
         self.output_table(f"{filename.split('.')[-2]}.md")
 
 
